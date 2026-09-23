@@ -70,7 +70,8 @@ export async function updateApplication(req: Request, res: Response, next: NextF
 
     const nextStatus = rest.status as ApplicationStatus | undefined;
     if (nextStatus && nextStatus !== application.status) {
-      application.statusHistory.push({ status: nextStatus, note: statusNote });
+      application.statusHistory.push({ status: nextStatus, note: statusNote, changedAt: new Date() });
+
     }
     Object.assign(application, rest);
     if (companyId) application.company = companyId as never;

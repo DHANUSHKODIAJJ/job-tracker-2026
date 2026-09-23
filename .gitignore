@@ -21,3 +21,5 @@ npm-debug.log*
 
 # Uploads (local dev)
 server/uploads/
+
+*.tsbuildinfo
