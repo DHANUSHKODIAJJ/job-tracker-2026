@@ -16,5 +16,6 @@ export const env = {
   jwtSecret: required('JWT_SECRET'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
   clientUrl: process.env.CLIENT_URL ?? 'http://localhost:5173',
-  isProd: process.env.NODE_ENV === 'production',
+  isProd: process.env.NODE_ENV === 'production',  hfApiKey: process.env.HF_API_KEY ?? '',
 };
+

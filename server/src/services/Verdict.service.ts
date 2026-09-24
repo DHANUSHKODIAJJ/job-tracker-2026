@@ -144,8 +144,42 @@ export function runVerdict(input: CheckInput): {verdict: Verdict; score: number;
         ? 'caution'
         : 'looks_ok';
 
-  return { verdict, score, flags };
+  return { verdict:verdictFrom(score,flags), score, flags };
 }
+
+
+function verdictFrom(score: number, flags: VerdictFlag[]): Verdict {
+  if (flags.some((f) => f.severity === 'high') || score >= DANGER_SCORE) return 'danger';
+  if (score >= CAUTION_SCORE) return 'caution';
+  return 'looks_ok';
+}
+
+// AI can add at most this many points
+const AI_MAX_POINTS = 6;
+
+// Below this confidence the AI vote is ignored
+const AI_MIN_CONFIDENCE = 0.7;
+export function blendWithAi(
+  rules: { score: number; flags: VerdictFlag[] },
+  aiScamScore: number | null,
+): { verdict: Verdict; score: number; flags: VerdictFlag[] } {
+  if (aiScamScore === null || aiScamScore < AI_MIN_CONFIDENCE) {
+    return { verdict: verdictFrom(rules.score, rules.flags), score: rules.score, flags: rules.flags };
+  }
+
+  const flags: VerdictFlag[] = [
+    ...rules.flags,
+    {
+      code: 'ai-suspicious',
+      severity: 'medium',
+      message: `AI model rates this post ${Math.round(aiScamScore * 100)}% likely to be a scam.`,
+    },
+  ];
+  const score = rules.score + Math.round(aiScamScore * AI_MAX_POINTS);
+  return { verdict: verdictFrom(score, flags), score, flags };
+}
+
+
 export type Category = 'legit' | 'consultancy' | 'institute' | 'scam';
 export function categorize(flags: VerdictFlag[]): Category {
   const codes = new Set(flags.map((f) => f.code));

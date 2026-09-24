@@ -11,6 +11,10 @@ export interface IJobCheck extends Document {
     category: 'legit' | 'consultancy' | 'institute' | 'scam';
     score:number;
     flags:{code:string;severity:string;message:string}[]
+    ruleScore?:number;
+    aiUsed?:boolean
+    ai?:{model:string,label:string;scamScore:number};
+    
 }
 
 const flagSchema = new Schema(
@@ -20,6 +24,13 @@ const flagSchema = new Schema(
         message:{type :String,required:true},
     },{_id:false},
 );
+const aiSchema = new Schema({
+    model : {type:String,required:true},
+    label : {type:String,required:true},
+    scamScore : {type:Number,required:true,min:0,max:1},
+}, {_id:false}
+);
+
 
 const jobCheckSchema = new Schema<IJobCheck>(
       {
@@ -32,6 +43,9 @@ const jobCheckSchema = new Schema<IJobCheck>(
     category: { type: String, enum: ['legit', 'consultancy', 'institute', 'scam'], required: true },
     score: { type: Number, required: true },
     flags: { type: [flagSchema], default: [] },
+    ruleScore:{type:Number},
+    aiUsed:{type:Boolean,default:false},
+    ai:{type:aiSchema,required:false},
   },
     { timestamps: { createdAt: true, updatedAt: false } },
 
